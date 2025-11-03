@@ -32,16 +32,20 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        os: [linux-arm, win-x64, linux-x64, win7-x64, win10-x64]
+        os: [linux-arm, win-x64, linux-x64, linux-arm64]
     steps:
     - name: Checkout
       uses: actions/checkout@v1
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.101
+        dotnet-version: 8.0.21
     - name: ${{ matrix.os }} - Build with dotnet
-      run: dotnet publish -c Release --self-contained -r ${{ matrix.os }} -o ./publish${{ matrix.os }} /p:PublishTrimmed=true /p:DebugType=None
+      run: dotnet publish -c Release --self-contained -r ${{ matrix.os }} /p:DebugType=None
+    - name:  ${{ matrix.os }} - copy ClientTCP files
+      run: cp ./ClientTCP/bin/Release/net8/${{ matrix.os }}/publish/* publish${{ matrix.os }}/
+    - name:  ${{ matrix.os }} - copy hyper files
+      run: cp ./hyper/bin/Release/net8/${{ matrix.os }}/publish/* publish${{ matrix.os }}/
     - name: ${{ matrix.os }} - Write version to file
       run: echo "${GITHUB_REF#refs/tags/}" >> publish${{ matrix.os }}/version.txt
     - name: ${{ matrix.os }} - Compress output
