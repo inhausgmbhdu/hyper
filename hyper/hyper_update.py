@@ -64,8 +64,8 @@ def check_current_directory():
         
 hyper_path = "/var/inhaus/hyper"
 hyper_version_path = hyper_path + "/version.txt"
-hyper_version_remote_url = 'https://api.github.com/repos/alebrun7/hyper/releases/latest'
-hyper_latest_url = 'https://github.com/alebrun7/hyper/releases/latest/download/publishlinux-arm64.tar.xz'
+hyper_version_remote_url = 'https://api.github.com/repos/inhausgmbhdu/hyper/releases/latest'
+hyper_latest_url = 'https://github.com/inhausgmbhdu/hyper/releases/latest/download/publishlinux-arm64.tar.xz'
 default_com = "/dev/ttyUSB_ZStickGen5"
 
 if len(sys.argv) > 1:
