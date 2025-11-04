@@ -19,13 +19,6 @@ jobs:
           name: Release ${{ github.ref }}
           draft: false
           prerelease: false
-      - name: Save URL
-        run: echo "${{ steps.create_release.outputs.upload_url }}" >> url.txt
-      - name: Upload URL
-        uses: actions/upload-artifact@v4
-        with:
-          name: url
-          path: url.txt
   build:
     name: Build
     needs: release
@@ -52,13 +45,6 @@ jobs:
       run: echo "${GITHUB_REF#refs/tags/}" >> publish${{ matrix.os }}/version.txt
     - name: ${{ matrix.os }} - Compress output
       run: tar cfJ publish${{ matrix.os }}.tar.xz publish${{ matrix.os }}
-    - name: Download url
-      uses: actions/download-artifact@v4
-      with:
-        name: url
-        path: url
-    - name: set url
-      run: echo "UPLOAD_URL=$(cat url/url.txt)" >> $GITHUB_ENV
     - name: ${{ matrix.os }} - Upload Release Asset
       uses: softprops/action-gh-release@v2
       env:
