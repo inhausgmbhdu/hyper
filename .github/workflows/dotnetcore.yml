@@ -58,9 +58,7 @@ jobs:
         name: url
         path: url
     - name: set url
-      run: echo "::set-env name=UPLOAD_URL::$(cat url/url.txt)"
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+      run: echo "UPLOAD_URL=$(cat url/url.txt)" >> $GITHUB_ENV
     - name: ${{ matrix.os }} - Upload Release Asset
       uses: actions/upload-release-asset@v1.0.1
       env:
