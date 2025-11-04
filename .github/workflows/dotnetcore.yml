@@ -37,9 +37,9 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v5
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 8.0.415
+        dotnet-version: 8.0.x
     - name: ${{ matrix.os }} - Build with dotnet
       run: dotnet publish -c Release --self-contained -r ${{ matrix.os }} /p:DebugType=None
     - name:  ${{ matrix.os }} - create publish folder
