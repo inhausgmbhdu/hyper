@@ -6,6 +6,7 @@ import subprocess
 import signal
 import shutil
 import time
+import platform
 
 def remove_temp():
     print("remove temp")
@@ -17,10 +18,10 @@ def remove_temp():
 
 def remove_temp_after():
     print("remove temp afer install")
-    if os.path.exists("./publishlinux-arm64.tar.xz"):
-        os.unlink("./publishlinux-arm64.tar.xz")
-    if os.path.exists("./publishlinux-arm64"):
-        shutil.rmtree("./publishlinux-arm64")
+    if os.path.exists("./publish" + system_arch + ".tar.xz"):
+        os.unlink("./publish" + system_arch + ".tar.xz")
+    if os.path.exists("./publish" + system_arch):
+        shutil.rmtree("./publish" + system_arch)
 
 def dlProgress(count, blockSize, totalSize):
     percent = int(count*blockSize*100/totalSize)
@@ -62,11 +63,24 @@ def check_current_directory():
         print("Current directory is the production directory, use a working directory for update!")
         sys.exit(1)
         
+#determine platform
+arch = platform.machine().lower()
+if arch == 'armv7l' or arch == 'armv6l':
+    system_arch = 'linux-arm'
+elif arch == 'aarch64' or arch == 'arm64':
+    system_arch = 'linux-arm64'
+else:
+    system_arch = 'unknown'
+
+print("recognized system_arch: " + system_arch)
+
 hyper_path = "/var/inhaus/hyper"
 hyper_version_path = hyper_path + "/version.txt"
 hyper_version_remote_url = 'https://api.github.com/repos/inhausgmbhdu/hyper/releases/latest'
-hyper_latest_url = 'https://github.com/inhausgmbhdu/hyper/releases/latest/download/publishlinux-arm64.tar.xz'
+hyper_latest_url = 'https://github.com/inhausgmbhdu/hyper/releases/latest/download/publish' + system_arch + '.tar.xz'
 default_com = "/dev/ttyUSB_ZStickGen5"
+
+
 
 if len(sys.argv) > 1:
     default_com = sys.argv[1]
@@ -77,19 +91,21 @@ check_current_directory()
 remote_version = "N/A"
 
 #unpack if archives presend:
-if os.path.exists("./publishlinux-arm64"):
-    shutil.rmtree("./publishlinux-arm64")
-if os.path.exists("./publishlinux-arm64.tar.xz"):
-    print("extracting publishlinux-arm64.tar.xz")
-    subprocess.call('tar xf publishlinux-arm64.tar.xz'.split(' '))
+if os.path.exists("./publish" + system_arch):
+    shutil.rmtree("./publish" + system_arch)
+if os.path.exists("./publish" + system_arch + ".tar.xz"):
+    print("./publish" + system_arch + ".tar.xz")
+    extract_cmd = 'tar xf publish' + system_arch + '.tar.xz'
+    subprocess.call(extract_cmd.split(' '))
     print("done!")
-elif os.path.exists("./publishlinux-arm64.zip"):
-    print("extracting publishlinux-arm64.zip")
-    subprocess.call('unzip publishlinux-arm64.zip'.split(' '))
+elif os.path.exists("./publish" + system_arch + ".zip"):
+    print("extracting publish" + system_arch + ".zip")
+    extract_cmd = 'unzip publish' + system_arch + '.zip'
+    subprocess.call(extract_cmd.split(' '))
     print("done!")
 
-if os.path.exists("./publishlinux-arm64"):
-    with open("./publishlinux-arm64/version.txt", 'r') as f:
+if os.path.exists("./publish" + system_arch):
+    with open("./publish" + system_arch + "/version.txt", 'r') as f:
         remote_version = f.read()
     print("version to install: " + remote_version)
 else:
@@ -114,15 +130,16 @@ if sure != "y":
 
 remove_temp()
 
-if not os.path.exists("./publishlinux-arm64"):
+if not os.path.exists("./publish" + system_arch):
     #download latest release
     print("downloading latest version")
-    urllib.request.urlretrieve(hyper_latest_url, 'publishlinux-arm64.tar.xz', reporthook=dlProgress)
+    urllib.request.urlretrieve(hyper_latest_url, 'publish' + system_arch + '.tar.xz', reporthook=dlProgress)
     print("\ndone!")
 
     #extract
     print("extracting")
-    subprocess.call('tar xf publishlinux-arm64.tar.xz'.split(' '))
+    extract_cmd = 'tar xf publish' + system_arch + '.tar.xz'
+    subprocess.call(extract_cmd.split(' '))
     print("done!")
 
 # remove cronjob
@@ -147,7 +164,7 @@ if os.path.exists("/etc/init.d/hyper"):
 
 if not os.path.exists("/etc/init.d/hyper"):
     #copy to /etc/init.d while removing windows line breaks
-    text = open('./publishlinux-arm64/hyperInitD', 'r').read().replace('\r\n', '\n')
+    text = open('./publish' + system_arch + '/hyperInitD', 'r').read().replace('\r\n', '\n')
     open("/etc/init.d/hyper", 'w').write(text)
     make_executable("/etc/init.d/hyper")
     subprocess.call("update-rc.d hyper defaults".split(" "))
@@ -159,22 +176,22 @@ if os.path.exists("/etc/udev/rules.d/20_ZStickGen5.rules"):
     os.unlink("/etc/udev/rules.d/20_ZStickGen5.rules")
 if os.path.exists("/etc/udev/rules.d/20_ZwaveUSBStick.rules"):
     os.unlink("/etc/udev/rules.d/20_ZwaveUSBStick.rules")
-shutil.copyfile("./publishlinux-arm64/20_ZStickGen5.rules", "/etc/udev/rules.d/20_ZStickGen5.rules")
+shutil.copyfile("./publish" + system_arch + "/20_ZStickGen5.rules", "/etc/udev/rules.d/20_ZStickGen5.rules")
 print("done")
 
 #backup logs and events
 print("backup")
 eventsdb_file = '/var/inhaus/hyper/events.db'
 if os.path.exists('/var/inhaus/hyper/logs'):
-    shutil.move('/var/inhaus/hyper/logs', "./publishlinux-arm64/")
+    shutil.move('/var/inhaus/hyper/logs', "./publish" + system_arch + "/")
 if os.path.exists(eventsdb_file):
     if os.path.getsize(eventsdb_file) < 100000000:
         print('preserving events.db')
-        shutil.move(eventsdb_file, './publishlinux-arm64/')
+        shutil.move(eventsdb_file, './publish' + system_arch + '/')
     else:
         print('truncating events.db')
 if os.path.exists('/var/inhaus/hyper/programconfig.yaml'):
-    shutil.copyfile('/var/inhaus/hyper/programconfig.yaml', './publishlinux-arm64/programconfig.yaml')
+    shutil.copyfile('/var/inhaus/hyper/programconfig.yaml', './publish' + system_arch + '/programconfig.yaml')
 
 print("done")
 
@@ -186,7 +203,7 @@ print("done")
 
 #copy downloaded hyper folder and backups
 print("move new")
-shutil.move('./publishlinux-arm64', '/var/inhaus/hyper')
+shutil.move('./publish' + system_arch, '/var/inhaus/hyper')
 print("done")
 
 remove_temp_after()
