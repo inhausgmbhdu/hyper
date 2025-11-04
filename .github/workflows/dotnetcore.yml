@@ -42,6 +42,8 @@ jobs:
         dotnet-version: 8.0.415
     - name: ${{ matrix.os }} - Build with dotnet
       run: dotnet publish -c Release --self-contained -r ${{ matrix.os }} /p:DebugType=None
+    - name:  ${{ matrix.os }} - create publish folder
+      run: mkdir publish${{ matrix.os }}
     - name:  ${{ matrix.os }} - copy ClientTCP files
       run: cp ./ClientTCP/bin/Release/net8/${{ matrix.os }}/publish/* publish${{ matrix.os }}/
     - name:  ${{ matrix.os }} - copy hyper files
