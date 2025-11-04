@@ -60,12 +60,10 @@ jobs:
     - name: set url
       run: echo "UPLOAD_URL=$(cat url/url.txt)" >> $GITHUB_ENV
     - name: ${{ matrix.os }} - Upload Release Asset
-      uses: actions/upload-release-asset@v1.0.1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: "${{ env.UPLOAD_URL }}"
-        asset_path: ./publish${{ matrix.os }}.tar.xz
-        asset_name: publish${{ matrix.os }}.tar.xz
-        asset_content_type: application/x-tar
+        tag_name: ${{ github.ref_name }}
+        files: ./publish${{ matrix.os }}.tar.xz
       
