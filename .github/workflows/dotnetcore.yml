@@ -7,7 +7,7 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Create Release
         id: create_release
@@ -29,7 +29,7 @@ jobs:
   build:
     name: Build
     needs: release
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         os: [linux-arm, win-x64, linux-x64, linux-arm64]
@@ -39,7 +39,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 8.0.21
+        dotnet-version: 8.0.415
     - name: ${{ matrix.os }} - Build with dotnet
       run: dotnet publish -c Release --self-contained -r ${{ matrix.os }} /p:DebugType=None
     - name:  ${{ matrix.os }} - copy ClientTCP files
