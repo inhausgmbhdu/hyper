@@ -770,6 +770,17 @@
         15_2: 255 # Key Pressed 3 time – value of SWITCH ON command sent to 2nd association group
     wakeup: 64800 # max value, 18 hours. default=0 would disable wakeup completely
 
+# Fibargroup FGKF-601 KeyFob
+# https://manuals.fibaro.com/de/button/
+# https://www.opensmarthouse.org/zwavedatabase/542
+-   deviceName: Fibargroup FGKF-601 KeyFob
+    manufacturerId: 271 #0x010F
+    # ProductId: 4096 (0x1000)
+    productTypeId: 4097 #0x1001
+    profile: default # will be used if no profile is specified in the command
+    groups:
+        1: 1 # “Lifeline” reports the device status and allows for assigning single device only (main controller by default).
+
 # AEON Labs ZW117 Range Extender 6
 # https://www.opensmarthouse.org/zwavedatabase/527
 -   deviceName: AEON Labs ZW117 Range Extender 6
