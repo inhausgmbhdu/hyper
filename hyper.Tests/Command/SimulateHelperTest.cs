@@ -2,6 +2,9 @@
 using hyper.Helper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
+using System.Linq;
 using System.Text.RegularExpressions;
 using ZWave.CommandClasses;
 
@@ -186,6 +189,35 @@ namespace hyper.Tests.Command
         }
 
         [TestMethod]
+        public void SimulateTemperature_Recognized()
+        {
+            foreach (float value in TemperatureValues())
+            {
+                string command = $"simulate 3 temperature {value}";
+                Assert.IsTrue(SimulateHelper.MatchesSimulate(command));
+
+                var helper = new SimulateHelper(command, dummyController);
+                helper.CreateCommand();
+                CheckTemperatureCommand(helper.Command, value);
+            }
+        }
+
+
+        [TestMethod]
+        public void SimulateSetpoint_Recognized()
+        {
+            foreach (float value in SetpointValues())
+            {
+                string command = $"simulate 3 setpoint {value}";
+                Assert.IsTrue(SimulateHelper.MatchesSimulate(command));
+
+                var helper = new SimulateHelper(command, dummyController);
+                helper.CreateCommand();
+                CheckSetpointCommand(helper.Command, value);
+            }
+        }
+
+        [TestMethod]
         public void SimulateWakeup_Recognized()
         {
                 string command = $"simulate 3 wakeup true";
@@ -233,6 +265,34 @@ namespace hyper.Tests.Command
             Assert.AreEqual(value, cmd.sensorValue[0]);
         }
 
+        private void CheckTemperatureCommand(object command, float value)
+        {
+            Assert.IsNotNull(command);
+            Assert.AreEqual(typeof(COMMAND_CLASS_SENSOR_MULTILEVEL_V11.SENSOR_MULTILEVEL_REPORT), command.GetType());
+            var cmd = (COMMAND_CLASS_SENSOR_MULTILEVEL_V11.SENSOR_MULTILEVEL_REPORT)command;
+            Assert.AreEqual(0x01, cmd.sensorType);
+            Assert.AreEqual(2, cmd.properties1.size);
+            Assert.AreEqual(2, cmd.properties1.precision);
+
+            String actual = String.Join('_', cmd.sensorValue);
+            String expected = TemperatureDict()[value];
+            Assert.AreEqual(expected, actual);
+        }
+
+        private void CheckSetpointCommand(object command, float value)
+        {
+            Assert.IsNotNull(command);
+            Assert.AreEqual(typeof(COMMAND_CLASS_THERMOSTAT_SETPOINT_V3.THERMOSTAT_SETPOINT_REPORT), command.GetType());
+            var cmd = (COMMAND_CLASS_THERMOSTAT_SETPOINT_V3.THERMOSTAT_SETPOINT_REPORT)command;
+            Assert.AreEqual(1, cmd.properties1.setpointType); //Heating
+            Assert.AreEqual(2, cmd.properties2.size);
+            Assert.AreEqual(1, cmd.properties2.precision);
+
+            String actual = String.Join('_', cmd.value);
+            String expected = "0_" + ((short)value * 10).ToString();
+            Assert.AreEqual(expected, actual);
+        }
+
         private void CheckWakeupCommand(object command)
         {
             Assert.IsNotNull(command);
@@ -247,6 +307,27 @@ namespace hyper.Tests.Command
         private static byte[] HumidityValues()
         {
             return new byte[] { 0, 1, 10, 20, 50, 99, 100 };
+        }
+
+        private static float[] TemperatureValues()
+        {
+            return TemperatureDict().Keys.ToArray();
+        }
+
+
+        private IEnumerable<float> SetpointValues()
+        {
+            return new float[] { 0, 1, 5, 10, 20 };
+        }
+
+        private static IDictionary<float, string> TemperatureDict()
+        {
+            Dictionary<float, string> dict = new Dictionary<float, string>();
+            dict.Add(0, "0_0");
+            dict.Add(1, "0_100");
+            dict.Add(10, "3_232");
+            dict.Add(-1, "255_156");
+            return dict;
         }
 
         private void CheckCentralSceneCommand(object command, int sceneNumber)

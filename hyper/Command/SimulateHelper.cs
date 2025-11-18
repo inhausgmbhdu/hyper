@@ -1,6 +1,8 @@
 ﻿using hyper.Helper;
 using hyper.Helper.Extension;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using ZWave.CommandClasses;
 
@@ -16,7 +18,7 @@ namespace hyper.Command
         private static Regex simulateSceneRegex = new Regex(
             @$"^simulate\s+({BaseCommand.OneTo255Regex})\s+(scene)\s*([1-4])\s*$");
         private static Regex simulateOrHumRegex = new Regex(
-            @$"^simulate\s+({BaseCommand.OneTo255Regex})\s+(battery|humidity)\s*({BaseCommand.ZeroTo255Regex})\s*$");
+            @$"^simulate\s+({BaseCommand.OneTo255Regex})\s+(battery|humidity|temperature|setpoint)\s*(-?{BaseCommand.ZeroTo255Regex})\s*$");
 
         private Match match;
         private bool hasController;
@@ -113,6 +115,34 @@ namespace hyper.Command
                         sensorValue = { byte.Parse(param3) }
                     };
                     break;
+                case "temperature":
+                    Command = new COMMAND_CLASS_SENSOR_MULTILEVEL_V11.SENSOR_MULTILEVEL_REPORT()
+                    {
+                        properties1 = new COMMAND_CLASS_SENSOR_MULTILEVEL_V11.SENSOR_MULTILEVEL_REPORT.Tproperties1
+                        {
+                            size = 2,
+                            precision = 2
+                        },
+                        sensorType = 0x01,
+                        sensorValue = floatToBytes(param3, 2)
+                    };
+                    break;
+                case "setpoint":
+                    Command = new COMMAND_CLASS_THERMOSTAT_SETPOINT_V3.THERMOSTAT_SETPOINT_REPORT()
+                    {
+
+                        properties1 = new COMMAND_CLASS_THERMOSTAT_SETPOINT_V3.THERMOSTAT_SETPOINT_REPORT.Tproperties1
+                        {
+                            setpointType = 1, //Heating
+                        },
+                        properties2 = new COMMAND_CLASS_THERMOSTAT_SETPOINT_V3.THERMOSTAT_SETPOINT_REPORT.Tproperties2
+                        {
+                            size = 2,
+                            precision = 1
+                        },
+                        value = floatToBytes(param3, 1)
+                    };
+                    break;
                 case "rtr":
                     Command = new COMMAND_CLASS_THERMOSTAT_OPERATING_STATE_V2.THERMOSTAT_OPERATING_STATE_REPORT()
                     {
@@ -146,6 +176,21 @@ namespace hyper.Command
                 Common.logger.Info($"id: {NodeId} - key: {eventKey} - value: {eventValue} (simulated)");
                 Common.logger.Info($"simulate event - id: {NodeId} - key: {eventKey} - value: {eventValue}");
             }
+        }
+
+        private IList<byte> floatToBytes(string param3, int precision)
+        {
+            short shortValue = short.Parse(param3);
+            short scaled = shortValue;
+            if (precision == 1)
+            {
+                scaled = (short)(shortValue * 10);
+            }
+            if (precision == 2)
+            {
+                scaled = (short)(shortValue * 100);
+            }
+            return BitConverter.GetBytes(scaled).Reverse().ToArray();
         }
 
         public static COMMAND_CLASS_MULTI_CHANNEL_V4.MULTI_CHANNEL_CMD_ENCAP CreateMultiChannelBasicReportEncap(string endpointStr, bool value)

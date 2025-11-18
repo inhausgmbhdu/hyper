@@ -133,6 +133,23 @@ namespace hyper.Output
                         }
                     }
 
+                case COMMAND_CLASS_THERMOSTAT_SETPOINT_V3.THERMOSTAT_SETPOINT_REPORT report:
+                    {
+                        commandClass = BitConverter.GetBytes((short)COMMAND_CLASS_THERMOSTAT_SETPOINT_V3.ID);
+                        if (report.GetKeyValue(out Enums.EventKey eventType, out float floatVal))
+                        {
+                            //alfred createDeviceMultilevelEvents() ignores command class
+                            //so the index must be different. in SENSOR_MULTILEVEL the first byte is always 0
+                            index = new byte[] { 1, report.properties1.setpointType }; // 0,1 ist already temp_c
+                            values = BitConverter.GetBytes(floatVal);
+                            break;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+
                 case COMMAND_CLASS_SWITCH_BINARY_V2.SWITCH_BINARY_REPORT binaryReport:
                     {
                         commandClass = BitConverter.GetBytes((short)COMMAND_CLASS_SWITCH_BINARY_V2.ID);
