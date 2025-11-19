@@ -663,7 +663,7 @@ namespace hyper
             help.AppendLine("  simulate nodeId {bin|bw|ft|mk|rtr|t} [channel] {true|false}: simulates a sensor event");
             help.AppendLine("  simulate nodeId scene sceneNumber:   simulates central scene");
             help.AppendLine("  simulate nodeId battery level:       simulates battery report");
-            help.AppendLine("  simulate nodeId humidity value:      simulates humidity report");
+            help.AppendLine("  simulate nodeId {humidity|temperature|setpoint} value:      simulates humidity or temperature report");
             help.AppendLine("  stop:                                in ClientTCP: stops the current command, or hyper if no command is executing. Same as Ctrl+C in hyper");
             Common.logger.Info(help.ToString());
         }
