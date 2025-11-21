@@ -883,6 +883,18 @@
     config:
         # 8_1: 0 # Measured Temperature offset (0xCE-0x32 Offsets the measured temperature by-5,0°C – (+)5,0°C)
 
+# Eurotronic Spirit Radiator Thermostat
+# https://www.opensmarthouse.org/zwavedatabase/710 (very similar)
+-   deviceName: Eurotronic Spirit Radiator Thermostat
+    manufacturerId: 328 #(0x148)
+    productTypeId: 3 #(0x3)
+    productId: 1 #(0x01)
+    profile: default # will be used if no profile is specified in the command
+    groups:
+        1: 1 # Lifeline
+    config:
+        # 8_1: 0 # Measured Temperature offset (0xCE-0x32 Offsets the measured temperature by-5,0°C – (+)5,0°C)
+
 # Philio Technology PST02-A Slim Multi-Sensor
 # https://www.opensmarthouse.org/zwavedatabase/168
 -   deviceName: Philio Technology PST02-A Slim Multi-Sensor
