@@ -226,8 +226,9 @@ namespace hyper
 
         public void ReadProgramConfig()
         {
-            //default  17 hours, slighty smaller than the common 18 hours wakeup interval
-            minBatteryIntervall = Program.programConfig.GetIntValueOrDefault("minBatteryIntervall", 17);
+            //default 0 to get new battery value if batteries are changed for Door/Window Sensor
+            // 17 hours would be slighty smaller than the common 18 hours wakeup interval
+            minBatteryIntervall = Program.programConfig.GetIntValueOrDefault("minBatteryIntervall", 0);
         }
 
             private void RequestBatteryIfNeeded(byte nodeId)

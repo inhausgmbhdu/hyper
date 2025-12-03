@@ -16,7 +16,7 @@ namespace hyper.Command
             @$"^simulate\s+({BaseCommand.OneTo255Regex})\s+(bin|bw|ft|mk|rtr|t|wakeup)\s*(1|2)?\s*(false|true)");
         private static Regex simulateOnOffRegex = new Regex(@$"^simulate\s+(false|true)"); //simulate true => simulation mode on
         private static Regex simulateSceneRegex = new Regex(
-            @$"^simulate\s+({BaseCommand.OneTo255Regex})\s+(scene)\s*([1-4])\s*$");
+            @$"^simulate\s+({BaseCommand.OneTo255Regex})\s+(scene)\s*([1-6])\s*$");
         private static Regex simulateOrHumRegex = new Regex(
             @$"^simulate\s+({BaseCommand.OneTo255Regex})\s+(battery|humidity|temperature|setpoint)\s*(-?{BaseCommand.ZeroTo255Regex})\s*$");
 

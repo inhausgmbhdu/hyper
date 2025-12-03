@@ -17,4 +17,4 @@ workaroundForButtons:
 udpIpAddress: 127.0.0.1
 
 # do not request battery value if the devices wakes up too often
-minBatteryIntervall: 17
+minBatteryIntervall: 0

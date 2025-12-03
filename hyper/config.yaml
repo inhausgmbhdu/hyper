@@ -567,7 +567,7 @@
         1: 1
     config:
         # Configure the output load status after re-power on (0=last status, 1=always on, 2=always off)
-        20_1: 1
+        20_1: 0
         # Configure the state of LED. 0= The LED will follow the status (on/off) of its load (Energy mode). 1= When the state of Switch’s load changed, The LED will follow the status (on/off) of its load, but the red LED will turn off after 5 seconds if there is no any switch action (momentary indicate mode). 2= Night light mode.
         81_1: 1
         # Enables/disables parameter 91 and 92 below (1=enabled, 0=disabled).
